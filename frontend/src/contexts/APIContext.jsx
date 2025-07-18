@@ -1,4 +1,4 @@
-// File: frontend/src/contexts/APIContext.jsx
+// File: frontend/src/contexts/APIContext.jsx (Updated)
 import React, { createContext, useContext } from 'react';
 import axios from 'axios';
 
@@ -8,32 +8,9 @@ const APIContext = createContext();
 axios.defaults.baseURL = '/api/v1';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
-// Request interceptor
-axios.interceptors.request.use(
-  (config) => {
-    console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor
-axios.interceptors.response.use(
-  (response) => {
-    console.log(`✅ API Response: ${response.status} ${response.config.url}`);
-    return response;
-  },
-  (error) => {
-    console.error(`❌ API Error: ${error.response?.status} ${error.config?.url}`);
-    return Promise.reject(error);
-  }
-);
-
 export const APIProvider = ({ children }) => {
   const api = {
-    // IOC operations
+    // Existing IOC and feed operations...
     iocs: {
       getAll: (params = {}) => axios.get('/iocs', { params }),
       getById: (id) => axios.get(`/iocs/${id}`),
@@ -45,7 +22,6 @@ export const APIProvider = ({ children }) => {
       bulkCreate: (data) => axios.post('/iocs/bulk', data),
     },
     
-    // Feed operations
     feeds: {
       getAll: (params = {}) => axios.get('/feeds', { params }),
       getById: (id) => axios.get(`/feeds/${id}`),
@@ -55,9 +31,25 @@ export const APIProvider = ({ children }) => {
       triggerUpdate: (id) => axios.post(`/feeds/${id}/update`),
       getUpdates: (id, params = {}) => axios.get(`/feeds/${id}/updates`, { params }),
       getStats: (id) => axios.get(`/feeds/${id}/stats`),
+      getOpenSource: () => axios.get('/feeds/open-source'),
     },
     
-    // System operations
+    // NEW: Threat Intelligence operations
+    threatIntel: {
+      getThreatFamilies: (params = {}) => axios.get('/threat-intel/threat-families', { params }),
+      getFamilyIOCs: (familyId) => axios.get(`/threat-intel/threat-families/${familyId}/iocs`),
+      enrichIOC: (iocId) => axios.post(`/threat-intel/iocs/${iocId}/enrich`),
+      getIOCEnrichment: (iocId) => axios.get(`/threat-intel/iocs/${iocId}/enrichment`),
+      getEnrichmentSources: () => axios.get('/enrichment/sources'),
+      createEnrichmentSource: (data) => axios.post('/enrichment/sources', data),
+    },
+    
+    // Setup operations
+    setup: {
+      setupRecommendedFeeds: () => axios.post('/setup/feeds/recommended'),
+      setupAllFeeds: () => axios.post('/setup/feeds/all'),
+    },
+    
     system: {
       getStatus: () => axios.get('/status'),
       getHealth: () => axios.get('/health'),

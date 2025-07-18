@@ -245,3 +245,9 @@ class IOCService:
         self.db.commit()
         self.db.refresh(db_ioc)
         return db_ioc
+
+# Add the missing import at the top if not there
+from datetime import datetime
+from sqlalchemy import and_
+
+# Make sure the create_ioc_sync method exists
